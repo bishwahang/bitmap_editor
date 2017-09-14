@@ -6,7 +6,7 @@ class BitmapEditor
   MAX_VALUE_FOR_CO_ORDINATES = 250
   MIN_VALUE_FOR_CO_ORDINATES = 1
 
-  attr_reader :file, :m, :n, :bit_map
+  attr_reader :file, :column, :row, :bitmap
 
   def self.run(file)
     return puts "please provide correct file" if file.nil? || !File.exists?(file)
@@ -22,12 +22,15 @@ class BitmapEditor
       command, *parameters = line.chomp.split
 
       raise InvalidCommand.new("The command is invalid") unless VALID_COMMANDS.include? command
+      parameters.map! { |e| /\A\d+\z/ === e ? e.to_i : e }
 
       case command
       when "I"
         initialize_bitmap(*parameters)
       when "C"
+        initialize_bitmap(column, row)
       when "L"
+        color_pixel(*parameters)
       when "V"
       when "H"
       when "S"
@@ -38,25 +41,39 @@ class BitmapEditor
 
   private
 
-  def initialize_bitmap(m, n)
-    @m, @n = m.to_i, n.to_i
+  def initialize_bitmap(column, row)
+    @column, @row = column, row
 
-    if @m > MAX_VALUE_FOR_CO_ORDINATES || @n > MAX_VALUE_FOR_CO_ORDINATES
+    if @column > MAX_VALUE_FOR_CO_ORDINATES || @row > MAX_VALUE_FOR_CO_ORDINATES
       raise OutOfBoundCoordinates.new("co-ordinate is greater than #{MAX_VALUE_FOR_CO_ORDINATES}")
     end
-
-    if @m < MIN_VALUE_FOR_CO_ORDINATES || @n < MIN_VALUE_FOR_CO_ORDINATES
+    if @column < MIN_VALUE_FOR_CO_ORDINATES || @row < MIN_VALUE_FOR_CO_ORDINATES
       raise OutOfBoundCoordinates.new("co-ordinate is smaller than #{MAX_VALUE_FOR_CO_ORDINATES}")
     end
 
-    @bitmap = Array.new(@n+1) { Array.new(@m+1, "O") }
+    @bitmap = Array.new(@row+1) { Array.new(@column+1, "O") }
+  end
+
+  def color_pixel(column, row, color)
+    check_out_of_bound_error(column, row)
+    bitmap[row][column] = color
   end
 
   def display_bitmap
     result = []
-    (1..n).each do |row|
-      result << @bitmap[row][1..m].join
+    (1..row).each do |row|
+      result << bitmap[row][1..column].join
     end
     print result.join("\n")
+  end
+
+  def check_out_of_bound_error(y, x)
+    if y > column || x > row
+      raise OutOfBoundCoordinates.new("co-ordinate is greater than #{MAX_VALUE_FOR_CO_ORDINATES}")
+    end
+
+    if y < MIN_VALUE_FOR_CO_ORDINATES || x < MIN_VALUE_FOR_CO_ORDINATES
+      raise OutOfBoundCoordinates.new("co-ordinate is smaller than #{MAX_VALUE_FOR_CO_ORDINATES}")
+    end
   end
 end
