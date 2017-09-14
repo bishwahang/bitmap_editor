@@ -22,6 +22,8 @@ class BitmapEditor
       command, *parameters = line.chomp.split
 
       raise InvalidCommand.new("The command is invalid") unless VALID_COMMANDS.include? command
+      raise InvalidCommand.new("First command should be bitmap initialization") if bitmap.nil? && command != "I"
+
       parameters.map! { |e| /\A\d+\z/ === e ? e.to_i : e }
 
       case command
@@ -32,7 +34,9 @@ class BitmapEditor
       when "L"
         color_pixel(*parameters)
       when "V"
+        draw_vertical(*parameters)
       when "H"
+        draw_horizantal(*parameters)
       when "S"
         display_bitmap()
       end
@@ -41,22 +45,34 @@ class BitmapEditor
 
   private
 
-  def initialize_bitmap(column, row)
-    @column, @row = column, row
+  def initialize_bitmap(c_col, r_row)
+    @column, @row = c_col, r_row
 
-    if @column > MAX_VALUE_FOR_CO_ORDINATES || @row > MAX_VALUE_FOR_CO_ORDINATES
+    if column > MAX_VALUE_FOR_CO_ORDINATES || row > MAX_VALUE_FOR_CO_ORDINATES
       raise OutOfBoundCoordinates.new("co-ordinate is greater than #{MAX_VALUE_FOR_CO_ORDINATES}")
     end
-    if @column < MIN_VALUE_FOR_CO_ORDINATES || @row < MIN_VALUE_FOR_CO_ORDINATES
+    if column < MIN_VALUE_FOR_CO_ORDINATES || row < MIN_VALUE_FOR_CO_ORDINATES
       raise OutOfBoundCoordinates.new("co-ordinate is smaller than #{MAX_VALUE_FOR_CO_ORDINATES}")
     end
 
-    @bitmap = Array.new(@row+1) { Array.new(@column+1, "O") }
+    @bitmap = Array.new(row+1) { Array.new(column+1, "O") }
   end
 
-  def color_pixel(column, row, color)
-    check_out_of_bound_error(column, row)
-    bitmap[row][column] = color
+  def color_pixel(c_col, r_row, color)
+    check_out_of_bound_error(c_col, r_row)
+    bitmap[r_row][c_col] = color
+  end
+
+  def draw_vertical(c_col, start_row, end_row, color)
+    (start_row..end_row).each do |r|
+      color_pixel(c_col, r, color)
+    end
+  end
+
+  def draw_horizantal(start_col, end_col, r_row, color)
+    (start_col..end_col).each do |c|
+      color_pixel(c, r_row, color)
+    end
   end
 
   def display_bitmap
@@ -67,13 +83,13 @@ class BitmapEditor
     print result.join("\n")
   end
 
-  def check_out_of_bound_error(y, x)
-    if y > column || x > row
-      raise OutOfBoundCoordinates.new("co-ordinate is greater than #{MAX_VALUE_FOR_CO_ORDINATES}")
+  def check_out_of_bound_error(c_col, r_row)
+    if c_col > column || r_row > row
+      raise OutOfBoundCoordinates.new("co-ordinate (#{c_col}, #{r_row}) is greater than bitmap boundary: col=#{column}, row=#{row}")
     end
 
-    if y < MIN_VALUE_FOR_CO_ORDINATES || x < MIN_VALUE_FOR_CO_ORDINATES
-      raise OutOfBoundCoordinates.new("co-ordinate is smaller than #{MAX_VALUE_FOR_CO_ORDINATES}")
+    if c_col < MIN_VALUE_FOR_CO_ORDINATES || r_row < MIN_VALUE_FOR_CO_ORDINATES
+      raise OutOfBoundCoordinates.new("co-ordinate (#{c_col}, #{r_row})is smaller than #{MAX_VALUE_FOR_CO_ORDINATES}")
     end
   end
 end
