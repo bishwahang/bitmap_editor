@@ -10,7 +10,7 @@ class BitmapEditor
 
   def self.run(file)
     return puts "please provide correct file" if file.nil? || !File.exists?(file)
-    self.new(File.open(file, "r")).process
+    new(File.open(file, "r")).process
   end
 
   def initialize(file)
@@ -52,7 +52,7 @@ class BitmapEditor
       raise OutOfBoundCoordinates.new("co-ordinate is greater than #{MAX_VALUE_FOR_CO_ORDINATES}")
     end
     if column < MIN_VALUE_FOR_CO_ORDINATES || row < MIN_VALUE_FOR_CO_ORDINATES
-      raise OutOfBoundCoordinates.new("co-ordinate is smaller than #{MAX_VALUE_FOR_CO_ORDINATES}")
+      raise OutOfBoundCoordinates.new("co-ordinate is smaller than #{MIN_VALUE_FOR_CO_ORDINATES}")
     end
 
     @bitmap = Array.new(row+1) { Array.new(column+1, "O") }
@@ -89,7 +89,7 @@ class BitmapEditor
     end
 
     if c_col < MIN_VALUE_FOR_CO_ORDINATES || r_row < MIN_VALUE_FOR_CO_ORDINATES
-      raise OutOfBoundCoordinates.new("co-ordinate (#{c_col}, #{r_row})is smaller than #{MAX_VALUE_FOR_CO_ORDINATES}")
+      raise OutOfBoundCoordinates.new("co-ordinate (#{c_col}, #{r_row})is smaller than #{MIN_VALUE_FOR_CO_ORDINATES}")
     end
   end
 end
