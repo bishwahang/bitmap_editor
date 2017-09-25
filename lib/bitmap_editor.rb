@@ -89,6 +89,7 @@ class BitmapEditor
 
     target_color = bitmap[start_row][start_col]
     bitmap[start_row][start_col] = final_color
+    visited[start_row][start_col] = true
 
     bucket = []
 
