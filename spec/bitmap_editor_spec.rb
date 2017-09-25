@@ -127,6 +127,33 @@ RSpec.describe BitmapEditor do
     end
 
   end
+
+  it "raises OutOfBoundCoordinates with incorrect start coordinates" do
+    stub_file_with("I 3 3\nL 1 1 Z\nL 2 1 Z\nL 3 2 Z\nF 4 1 R\nS")
+    expect do
+      described_class.run("filename")
+    end.to raise_error BitmapEditor::OutOfBoundCoordinates
+  end
+
+  it "fills the bitmap outward with correct start coordinate and color" do
+    # input
+    # Z Z 0
+    # 0 0 Z
+    # 0 0 0
+    #
+    # result
+    # R R 0
+    # 0 0 Z
+    # 0 0 0
+
+    stub_file_with("I 3 3\nL 1 1 Z\nL 2 1 Z\nL 3 2 Z\nF 1 1 R\nS")
+    expect do
+      described_class.run("filename")
+    end.to output(
+      "RRO\nOOZ\nOOO"
+    ).to_stdout
+  end
+
   def stub_file_with(content)
     expect(File).to receive(:exists?).and_return(true)
     expect(File).to receive(:open).and_return(content)

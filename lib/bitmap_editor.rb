@@ -1,8 +1,9 @@
+require 'ostruct'
 class BitmapEditor
   class InvalidCommand < StandardError; end
   class OutOfBoundCoordinates < StandardError; end
 
-  VALID_COMMANDS = %w[I C L V H S]
+  VALID_COMMANDS = %w[I C L V H S F]
   MAX_VALUE_FOR_CO_ORDINATES = 250
   MIN_VALUE_FOR_CO_ORDINATES = 1
 
@@ -37,10 +38,16 @@ class BitmapEditor
         draw_vertical(*parameters)
       when "H"
         draw_horizantal(*parameters)
+      when "F"
+        fill_color(*parameters)
       when "S"
-        display_bitmap()
+        display_bitmap
       end
     end
+  rescue Exception => ex
+    # puts "Something went wrong. Pelase read the exeception message"
+    # puts ex.message
+    raise ex
   end
 
   private
@@ -75,6 +82,45 @@ class BitmapEditor
     end
   end
 
+  def fill_color(start_col, start_row, final_color)
+    check_out_of_bound_error(start_col, start_row)
+
+    visited = Array.new(row + 1) { Array.new(column + 1, false) }
+
+    target_color = bitmap[start_row][start_col]
+    bitmap[start_row][start_col] = final_color
+
+    bucket = []
+
+    one_pixel_down  = pixel_object(start_row + 1, start_col, bitmap[start_row+1][start_col])
+    one_pixel_right = pixel_object(start_row, start_col + 1, bitmap[start_row][start_col + 1])
+    bucket << one_pixel_down if one_pixel_down
+    bucket << one_pixel_right if one_pixel_down
+
+    loop do
+      break if bucket.empty?
+      cur_pixel = bucket.shift
+      next if visited[cur_pixel.row][cur_pixel.col]
+      if cur_pixel.color == target_color
+        bitmap[cur_pixel.row][cur_pixel.col] = final_color
+
+        one_pixel_down  = pixel_object(cur_pixel.row + 1, cur_pixel.col, bitmap[cur_pixel.row + 1][cur_pixel.col])
+        one_pixel_right = pixel_object(cur_pixel.row, cur_pixel.col + 1, bitmap[cur_pixel.row][cur_pixel.col + 1])
+
+        bucket << one_pixel_down if one_pixel_down
+        bucket << one_pixel_right if one_pixel_down
+      end
+      visited[cur_pixel.row][cur_pixel.col] = true
+    end
+
+  end
+
+  def pixel_object(r_row, r_col, color)
+    return if r_row > row
+    return if r_col > column
+    OpenStruct.new(row: r_row, col: r_col, color: color)
+  end
+
   def display_bitmap
     result = []
     (1..row).each do |row|
@@ -89,7 +135,7 @@ class BitmapEditor
     end
 
     if c_col < MIN_VALUE_FOR_CO_ORDINATES || r_row < MIN_VALUE_FOR_CO_ORDINATES
-      raise OutOfBoundCoordinates.new("co-ordinate (#{c_col}, #{r_row})is smaller than #{MIN_VALUE_FOR_CO_ORDINATES}")
+      raise OutOfBoundCoordinates.new("co-ordinate (#{c_col}, #{r_row}) is smaller than #{MIN_VALUE_FOR_CO_ORDINATES}")
     end
   end
 end
