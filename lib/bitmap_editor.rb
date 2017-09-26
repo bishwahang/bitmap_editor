@@ -93,8 +93,9 @@ class BitmapEditor
 
     bucket = []
 
-    one_pixel_down  = pixel_object(start_row + 1, start_col, bitmap[start_row+1][start_col])
-    one_pixel_right = pixel_object(start_row, start_col + 1, bitmap[start_row][start_col + 1])
+    one_pixel_down  = pixel_object(start_row + 1, start_col)
+    one_pixel_right = pixel_object(start_row, start_col + 1)
+
     bucket << one_pixel_down if one_pixel_down
     bucket << one_pixel_right if one_pixel_down
 
@@ -105,21 +106,26 @@ class BitmapEditor
       if cur_pixel.color == target_color
         bitmap[cur_pixel.row][cur_pixel.col] = final_color
 
-        one_pixel_down  = pixel_object(cur_pixel.row + 1, cur_pixel.col, bitmap[cur_pixel.row + 1][cur_pixel.col])
-        one_pixel_right = pixel_object(cur_pixel.row, cur_pixel.col + 1, bitmap[cur_pixel.row][cur_pixel.col + 1])
+        one_pixel_down  = pixel_object(cur_pixel.row + 1, cur_pixel.col)
+        one_pixel_right = pixel_object(cur_pixel.row, cur_pixel.col + 1)
 
-        bucket << one_pixel_down if one_pixel_down
-        bucket << one_pixel_right if one_pixel_down
+        if one_pixel_down
+          bucket << one_pixel_down
+        end
+
+        if one_pixel_right
+          bucket << one_pixel_right
+        end
       end
       visited[cur_pixel.row][cur_pixel.col] = true
     end
 
   end
 
-  def pixel_object(r_row, r_col, color)
+  def pixel_object(r_row, r_col)
     return if r_row > row
     return if r_col > column
-    OpenStruct.new(row: r_row, col: r_col, color: color)
+    OpenStruct.new(row: r_row, col: r_col, color: bitmap[r_row][r_col])
   end
 
   def display_bitmap
@@ -128,6 +134,7 @@ class BitmapEditor
       result << bitmap[row][1..column].join
     end
     print result.join("\n")
+    puts "\n"
   end
 
   def check_out_of_bound_error(c_col, r_row)

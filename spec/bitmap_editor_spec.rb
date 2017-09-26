@@ -36,7 +36,7 @@ RSpec.describe BitmapEditor do
       stub_file_with("I 5 3\nS")
       expect do
         described_class.run("filename")
-      end.to output("OOOOO\nOOOOO\nOOOOO").to_stdout
+      end.to output("OOOOO\nOOOOO\nOOOOO\n").to_stdout
     end
 
     it "raises OutOfBoundCoordinates Error if if co-ordinates are less than 1" do
@@ -59,14 +59,14 @@ RSpec.describe BitmapEditor do
       stub_file_with("I 1 1\nL 1 1 R\nS")
       expect do
         described_class.run("filename")
-      end.to output("R").to_stdout
+      end.to output("R\n").to_stdout
     end
 
     it "resets the bitmap with 0" do
       stub_file_with("I 1 1\nL 1 1 R\nC\nS")
       expect do
         described_class.run("filename")
-      end.to output("O").to_stdout
+      end.to output("O\n").to_stdout
     end
 
     it "draws vertical" do
@@ -83,7 +83,7 @@ RSpec.describe BitmapEditor do
       stub_file_with("I 2 3\nV 2 1 3 R\nS")
       expect do
         described_class.run("filename")
-      end.to output("OR\nOR\nOR").to_stdout
+      end.to output("OR\nOR\nOR\n").to_stdout
     end
 
     it "draws horizantal" do
@@ -99,7 +99,7 @@ RSpec.describe BitmapEditor do
       stub_file_with("I 3 2\nH 1 3 2 R\nS")
       expect do
         described_class.run("filename")
-      end.to output("OOO\nRRR").to_stdout
+      end.to output("OOO\nRRR\n").to_stdout
     end
 
     it "executes stream of command correctly" do
@@ -122,7 +122,7 @@ RSpec.describe BitmapEditor do
       expect do
         described_class.run("filename")
       end.to output(
-        "OOOOO\nOOZZZ\nAWOOO\nOWOOO\nOWOOO\nOWOOO"
+        "OOOOO\nOOZZZ\nAWOOO\nOWOOO\nOWOOO\nOWOOO\n"
       ).to_stdout
     end
 
@@ -150,7 +150,7 @@ RSpec.describe BitmapEditor do
     expect do
       described_class.run("filename")
     end.to output(
-      "RRO\nOOZ\nOOO"
+      "RRO\nOOZ\nOOO\n"
     ).to_stdout
   end
 
